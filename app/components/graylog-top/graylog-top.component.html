@@ -1,0 +1,130 @@
+<div class="p-p-3">
+  <!-- Основной заголовок -->
+
+
+  <!-- Контейнер формы и результата -->
+  <div class="formgrid grid p-grid-nogutter p-ai-start p-mb-4 ">
+    <!-- Левый блок с формой -->
+    <div class="col-12 lg:col-5 mb-3 p-2">
+      <p-panel header="Параметры запроса Graylog">
+        <div class="p-fluid grid formgrid align-items-center">
+
+          <!-- Тип таймрейнджа -->
+          <div class="field col-1">
+
+            <p-inputSwitch [style]="{fontSize: '12px', padding: '0px 0px'}" id="timerangeType" [(ngModel)]="isRelative" (onChange)="onTimeRangeChange()"></p-inputSwitch>
+          </div>
+
+          <!-- Лимит -->
+          <div class="field col-2">
+            <label for="limit">Лимит</label>
+            <p-dropdown id="limit" [style]="{fontSize: '12px', height: '35px', padding: '0px 0px'}"
+                        [(ngModel)]="selectedLimit"
+                        [options]="limitOptions"
+                        [editable]="true"
+                        class="w-full">
+
+            </p-dropdown>
+          </div>
+
+          <!-- Поле для relative таймрейнджа -->
+          <div class="field col-2" *ngIf="timerangeType === 'relative'">
+            <label for="relativeRange">Секунды</label>
+            <input [style]="{fontSize: '12px', height: '35px', padding: '2px 15px'}" pInputText type="number"
+                   id="relativeRange" [(ngModel)]="relativeRange" placeholder="300"/>
+          </div>
+
+
+          <!-- Поля для absolute таймрейнджа -->
+          <div class="field col-3" *ngIf="timerangeType === 'absolute'">
+            <label for="absoluteFrom">Дата с</label>
+            <p-calendar required="true" [style]="{fontSize: '12px', height: '35px', padding: '0px 0px'}" id="absoluteFrom"
+                        [(ngModel)]="absoluteFrom" [showTime]="true" dateFormat="yy-mm-dd"
+                        class="w-full"></p-calendar>
+          </div>
+          <div class="field col-3" *ngIf="timerangeType === 'absolute'">
+            <label for="absoluteTo">Дата по</label>
+            <p-calendar required="true" [style]="{fontSize: '12px', height: '35px', padding: '0px 0px'}" id="absoluteTo"
+                        [(ngModel)]="absoluteTo" [showTime]="true" dateFormat="yy-mm-dd"
+                        class="w-full"></p-calendar>
+          </div>
+          <!-- Graylog Query -->
+          <div class="field col-12">
+            <label for="graylog_query">Graylog Query</label>
+            <input pInputText id="graylog_query"
+                   [(ngModel)]="queryString"
+                   class="w-full"
+                   [style]="{fontSize: '12px', height: '35px', padding: '2px 5px'}"
+                   placeholder="Пример: status:200 AND vhost:www.officemag" (keydown.enter)="getGraylogTop()"/>
+          </div>
+          <!-- Кнопка поиска -->
+          <div class="field col-2 ">
+            <p-button [raised]="true"
+              [loading]="isLoadingSearch" icon="pi pi-search"
+              label="Выполнить запрос"
+
+              [style]="{fontSize: '12px', height: '40px', padding: '5px 5px'}"
+              (click)="getGraylogTop()"
+              class="w-full p-button-primary">
+            </p-button>
+          </div>
+        </div>
+
+      </p-panel>
+    </div>
+
+    <!-- Правый блок с результатами WHOIS -->
+    <div class="col-12 lg:col-6 mt-0 fadein animation-duration-200" *ngIf="whoisResult">
+      <p-panel header="Результаты WHOIS">
+        <div class="p-field pt-1">
+          <h4>IP: {{ whoisResult.ip }}</h4>
+          <p><strong>ASN:</strong> {{ whoisResult.asn }}</p>
+          <p><strong>Страна:</strong> {{ whoisResult.country }} <span
+            class="fi fi-{{ whoisResult.country.toLowerCase() }}"></span></p>
+          <p><strong>Подсеть:</strong> {{ whoisResult.network }}</p>
+          <p><strong>Описание:</strong> {{ whoisResult.asn_description }}</p>
+        </div>
+        <div class="mt-3">
+          <p-button label="Добавить IP в Blacklist"
+                    icon="pi pi-shield"
+                    [style]="{fontSize: '12px', height: '25px', padding: '2px 5px'}"
+                    (click)="addIPToBlacklist(whoisResult.ip)">
+          </p-button>
+          <p-button label="Добавить подсети в Blacklist" class="ml-3"
+                    icon="pi pi-shield" severity="danger"
+                    [style]="{fontSize: '12px', height: '25px', padding: '2px 5px'}"
+                    (click)="addSubnetsToBlacklist(whoisResult.network)">
+          </p-button>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+
+  <!-- Таблица с результатами Graylog -->
+  <div class="col-12 lg:col-12 mt-0 fadein animation-duration-200">
+      <p-table [value]="graylogTop"
+               [scrollable]="true"
+               scrollHeight="28rem"
+               styleClass="p-datatable-sm p-datatable-gridlines ">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>IP</th>
+            <th>Кол-во</th>
+            <th>Действия</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.ip }}</td>
+            <td>{{ item.count }}</td>
+            <td>
+              <p-button icon="pi pi-info-circle" [loading]="isLoadingWhois" label="WHOIS"
+                        styleClass="p-button-sm" [style]="{fontSize: '12px', height: '25px', padding: '2px 5px'}"
+                        (click)="getWhoisData(item.ip)">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+  </div>
+</div>

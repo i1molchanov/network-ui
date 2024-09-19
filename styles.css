@@ -1,0 +1,6 @@
+@import "flag-icons/css/flag-icons.min.css";
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeflex/primeflex.css";
+html {
+    font-size: 14px;
+}

@@ -1,0 +1,127 @@
+<!-- Модальное окно для добавления IP -->
+<p-dialog styleClass="shadow-5"
+          [style]="{ width: '60rem' }"
+          [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+          [(visible)]="displayModal"
+          [modal]="true"
+          [closable]="true"
+          header="Добавить IP-адреса"
+          (onHide)="closeAddModal()">
+  <div class="formgrid grid p-grid-nogutter p-ai-start p-mb-4">
+    <div class="field col-12">
+      <h3>Введите IP-адреса или подсети (каждый на новой строке)</h3>
+      <textarea [(ngModel)]="ipInput" rows="6" placeholder="Пример: 8.8.8.8&#10;1.1.1.0/24" class="w-full"></textarea>
+      <div *ngIf="!isFormValid" class="p-error p-mt-2">Введите корректные IP-адреса или подсети.</div>
+    </div>
+
+    <div class="field col-12">
+      <h3>Комментарий (общий для всех)</h3>
+      <input pInputText [(ngModel)]="newComment" placeholder="Введите комментарий или номер тикета" class="w-full"/>
+    </div>
+
+    <div class="field col-12 ">
+      <!-- Кнопки действия -->
+      <div class="col-6 ">
+        <p-button [raised]="true" label="Добавить" (click)="addIPs()" class="mr-2"
+                  ></p-button>
+        <p-button [raised]="true" label="Отмена" class=" p-button-secondary" (click)="closeAddModal()"></p-button>
+      </div>
+
+
+    </div>
+  </div>
+</p-dialog>
+
+<div class="p-p-3">
+  <div class="formgrid grid p-grid-nogutter p-ai-start p-mb-4 fadein animation-duration-200">
+    <!-- Левая часть: панель для поиска IP -->
+    <div class="p-col-12 lg:col-4">
+      <p-panel [header]="this.listType">
+        <div class="p-fluid grid formgrid">
+          <div class="field col-0">
+            <!-- Кнопка добавления IP -->
+            <p-button [raised]="true" icon="pi pi-plus" (click)="openAddModal()"></p-button>
+          </div>
+
+          <div class="field col-4">
+            <!-- Поле для поиска IP -->
+            <input pInputText placeholder="Поиск IP или подсети" [(ngModel)]="searchTerm" (keydown.enter)="searchIP()"
+                   class="w-full"/>
+          </div>
+
+          <div class="field col-0">
+            <!-- Кнопка поиска -->
+            <p-button [raised]="true" icon="pi pi-search" (click)="searchIP()"></p-button>
+          </div>
+          <div class="field col-4">
+            <!-- Кнопка для скачивания конфига -->
+            <p-button [raised]="true" icon="pi pi-download" label="nginx.conf" (click)="downloadConfig()"></p-button>
+          </div>
+          <div class="field col-1">
+            <!-- Кнопка удаления выбранных IP -->
+            <p-button [raised]="true" icon="pi pi-trash" severity="danger" *ngIf="selectedIPs.length > 0"
+                      (click)="deleteIPs()"
+                      [disabled]="selectedIPs.length === 0"></p-button>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+
+    <!-- Правая часть: результаты поиска -->
+    <div *ngIf="searchResult" class="p-col-12 lg:col-5 ml-1">
+      <p-panel header="Результат поиска">
+        <div class="p-fluid">
+          <div *ngIf="searchResult">
+            <p>IP: {{ searchResult.ip }}, Комментарий: {{ searchResult.comment }}</p>
+          </div>
+
+          <!-- Сообщение, если ничего не найдено -->
+          <div *ngIf="!searchResult && searchTerm">
+            <p>IP или подсеть не найдены.</p>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+</div>
+
+
+<div class="col-12 lg:col-12 fadein animation-duration-200">
+    <div>
+      <p-table #dt1 styleClass="p-datatable-gridlines p-datatable-sm"
+               [scrollable]="true"
+               scrollHeight="39rem"
+               [globalFilterFields]="['ip']"
+               [value]="filteredNetworkList"
+               selectionMode="multiple"
+               [(selection)]="selectedIPs"
+               dataKey="ip"
+               (sortFunction)="reverseNetworkList()" [customSort]="true"
+      >
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 5rem">
+              <p-tableHeaderCheckbox/>
+            </th>
+            <th>
+              <input pInputText placeholder="Фильтровать по IP" [(ngModel)]="filterInput"
+                     (ngModelChange)="onFilterChange($event)"/>
+              <p-sortIcon class="ml-4" pSortableColumn="ip" field="ip" />
+            </th>
+            <th>Комментарий</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+          <tr [pSelectableRow]="item">
+            <td>
+              <p-tableCheckbox [value]="item"/>
+            </td>
+            <td>{{ item.ip }}</td>
+            <td>{{ item.comment }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+</div>

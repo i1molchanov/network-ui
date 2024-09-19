@@ -1,0 +1,15 @@
+<p-toast  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }"/>
+<p-tabView pRipple>
+  <p-tabPanel header="Whitelist">
+    <app-network-list listType="whitelist"></app-network-list>
+  </p-tabPanel>
+  <p-tabPanel header="Blacklist">
+    <app-network-list listType="blacklist"></app-network-list>
+  </p-tabPanel>
+  <p-tabPanel header="SamsonNet">
+    <app-network-list listType="samson_net"></app-network-list>
+  </p-tabPanel>
+  <p-tabPanel header="GraylogTopValues">
+    <app-graylog-top />
+  </p-tabPanel>
+</p-tabView>
